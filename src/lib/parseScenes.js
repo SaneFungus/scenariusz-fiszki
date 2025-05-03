@@ -312,21 +312,41 @@ export function createFlashcards(script, character, actId, sceneId) {
   
   const flashcards = [];
   
-  // Znajdź kwestie wybranej postaci w scenie
-  for (let i = 0; i < scene.dialogues.length; i++) {
-    const dialogue = scene.dialogues[i];
-    
-    // Pomiń, jeśli to nie kwestia wybranej postaci
-    if (dialogue.character !== character) continue;
-    
-    // Znajdź poprzednią kwestię jako kontekst
+  // Znajdź wszystkie kwestie wybranej postaci w scenie
+  const characterDialogues = scene.dialogues.filter(d => d.character === character);
+  
+  // Jeśli nie ma kwestii, zwróć pustą tablicę
+  if (characterDialogues.length === 0) return [];
+  
+  // Dla każdej kwestii postaci
+  characterDialogues.forEach((dialogue, dialogueIndex) => {
+    // Znajdź kontekst (poprzednią kwestię innej postaci)
     let context = '';
-    if (i > 0) {
-      context = `${scene.dialogues[i-1].character}: ${scene.dialogues[i-1].text}`;
+    
+    // Znajdź indeks tej kwestii w oryginalnych dialogach
+    const originalIndex = scene.dialogues.findIndex(d => d === dialogue);
+    
+    // Jeśli to nie pierwsza kwestia w scenie, dodaj kontekst
+    if (originalIndex > 0) {
+      // Znajdź ostatnią kwestię przed tą, która nie należy do tej postaci
+      for (let i = originalIndex - 1; i >= 0; i--) {
+        if (scene.dialogues[i].character !== character) {
+          context = `${scene.dialogues[i].character}: ${scene.dialogues[i].text}`;
+          break;
+        }
+      }
+    }
+    
+    // Dla pierwszej kwestii, dodaj informację, że to początek
+    if (dialogueIndex === 0) {
+      context = context || 'Początek sceny';
+    } else {
+      // Dla kolejnych kwestii, dodaj informację o kontynuacji
+      context = context || '(kontynuacja)';
     }
     
     // Podziel długą kwestię na mniejsze fragmenty (około 150 znaków)
-    const maxLength = 150;
+    const maxLength = 200; // Zwiększyłem z 150 na 200 znaków
     const text = dialogue.text;
     
     if (text.length <= maxLength) {
@@ -334,12 +354,14 @@ export function createFlashcards(script, character, actId, sceneId) {
       flashcards.push({
         context,
         text,
-        hint: 'Pokaż podpowiedź',
+        hint: `Kwestia ${dialogueIndex + 1} z ${characterDialogues.length}`,
         difficulty: 0
       });
     } else {
       // Długa kwestia - podziel na fragmenty
       let start = 0;
+      let fragmentIndex = 0;
+      
       while (start < text.length) {
         let end = Math.min(start + maxLength, text.length);
         
@@ -364,19 +386,20 @@ export function createFlashcards(script, character, actId, sceneId) {
         
         // Wytnij fragment tekstu
         const fragment = text.substring(start, end).trim();
+        fragmentIndex++;
         
-        // Dodaj kontekst tylko dla pierwszej fiszki
+        // Dodaj kontekst tylko dla pierwszego fragmentu
         flashcards.push({
-          context: start === 0 ? context : '(kontynuacja)',
+          context: fragmentIndex === 1 ? context : '(kontynuacja)',
           text: fragment,
-          hint: 'Pokaż podpowiedź',
+          hint: `Kwestia ${dialogueIndex + 1} z ${characterDialogues.length}, fragment ${fragmentIndex}`,
           difficulty: 0
         });
         
         start = end;
       }
     }
-  }
+  });
   
   return flashcards;
 }
