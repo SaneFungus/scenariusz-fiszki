@@ -35,3 +35,23 @@ npm run build
 
 # Wdrożenie na GitHub Pages
 npm run deploy
+```
+## Format scenariusza
+Aplikacja obsługuje scenariusze w następującym formacie:
+```
+AKT I
+SCENA 1
+POSTAĆ 1: Kwestia pierwszej postaci.
+POSTAĆ 2: Odpowiedź drugiej postaci.
+
+SCENA 2
+...
+```
+## Technologie
+* Svelte
+* Vite
+* Progressive Web App (PWA)
+* GitHub Pages
+
+## Licencja
+MIT
