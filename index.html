@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fiszki do nauki tekstu dla aktorów</title>
+    <meta name="description" content="Aplikacja do nauki tekstu dla aktorów poprzez system fiszek" />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#3A5E85" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/scenariusz-fiszki/sw.js')
+            .then(reg => console.log('Service worker registered'))
+            .catch(err => console.log('Service worker not registered', err));
+        });
+      }
+    </script>
+  </body>
+</html>
